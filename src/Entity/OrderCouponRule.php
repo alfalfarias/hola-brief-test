@@ -34,7 +34,7 @@ class OrderCouponRule
 
     /**
      * @ORM\ManyToOne(targetEntity=OrderCoupon::class, inversedBy="rules")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $coupon;
 

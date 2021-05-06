@@ -46,7 +46,7 @@ class OrderCoupon
 
     /**
      * @ORM\OneToOne(targetEntity=Order::class, inversedBy="coupon", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $order;
 

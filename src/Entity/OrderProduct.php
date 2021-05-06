@@ -29,7 +29,7 @@ class OrderProduct
 
     /**
      * @ORM\ManyToOne(targetEntity=Order::class, inversedBy="products")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private $order;
 
