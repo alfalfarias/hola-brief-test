@@ -19,18 +19,20 @@ class ProductController extends AbstractController
     public function index(): Response
     {
         $entityManager = $this->getDoctrine()->getManager();
-        $query = $entityManager->getRepository(Product::class)->findAll();
+        $products = $entityManager->getRepository(Product::class)->findBy([],[
+            'id' => 'DESC'
+        ]);
 
-        $data = [];
+        $response = [];
 
-        foreach ($query as $key => $value) {
-            $data[] = [
-                // 'id' => $value->getId(),
-                'code' => $value->getCode(),
-                'price' => $value->getPrice(),
+        foreach ($products as $product) {
+            $response[] = [
+                'id' => $product->getId(),
+                'code' => $product->getCode(),
+                'price' => $product->getPrice(),
             ];
         }
-        return $this->json($data, 200);
+        return $this->json($response, 200);
     }
 
     /**

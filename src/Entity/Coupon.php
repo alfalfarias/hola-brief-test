@@ -13,8 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Coupon
 {
     const TYPE = [
-        'FIXED' => 'FIXED',
-        'PERCENT' => 'PERCENT',
+        'PRICE_FIXED' => 'PRICE_FIXED',
+        'PRICE_PERCENT' => 'PRICE_PERCENT',
     ];
     
     /**

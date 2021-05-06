@@ -20,7 +20,9 @@ class CouponController extends AbstractController
     public function index(): Response
     {
         $entityManager = $this->getDoctrine()->getManager();
-        $coupons = $entityManager->getRepository(Coupon::class)->findAll();
+        $coupons = $entityManager->getRepository(Coupon::class)->findBy([],[
+            'id' => 'DESC'
+        ]);
 
         $response = [];
 

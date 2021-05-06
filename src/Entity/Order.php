@@ -41,14 +41,13 @@ class Order
     private $products;
 
     /**
-     * @ORM\OneToMany(targetEntity=OrderCoupon::class, mappedBy="order", orphanRemoval=true)
+     * @ORM\OneToOne(targetEntity=OrderCoupon::class, mappedBy="order", cascade={"persist", "remove"})
      */
-    private $coupons;
+    private $coupon;
 
     public function __construct()
     {
         $this->products = new ArrayCollection();
-        $this->coupons = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -122,32 +121,19 @@ class Order
         return $this;
     }
 
-    /**
-     * @return Collection|OrderCoupon[]
-     */
-    public function getCoupons(): Collection
+    public function getCoupon(): ?OrderCoupon
     {
-        return $this->coupons;
+        return $this->coupon;
     }
 
-    public function addCoupon(OrderCoupon $coupon): self
+    public function setCoupon(OrderCoupon $coupon): self
     {
-        if (!$this->coupons->contains($coupon)) {
-            $this->coupons[] = $coupon;
+        // set the owning side of the relation if necessary
+        if ($coupon->getOrder() !== $this) {
             $coupon->setOrder($this);
         }
 
-        return $this;
-    }
-
-    public function removeCoupon(OrderCoupon $coupon): self
-    {
-        if ($this->coupons->removeElement($coupon)) {
-            // set the owning side to null (unless already changed)
-            if ($coupon->getOrder() === $this) {
-                $coupon->setOrder(null);
-            }
-        }
+        $this->coupon = $coupon;
 
         return $this;
     }

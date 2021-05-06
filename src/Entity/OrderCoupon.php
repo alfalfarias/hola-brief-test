@@ -40,15 +40,15 @@ class OrderCoupon
     private $value;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Order::class, inversedBy="coupons")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $order;
-
-    /**
      * @ORM\OneToMany(targetEntity=OrderCouponRule::class, mappedBy="coupon", orphanRemoval=true)
      */
     private $rules;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Order::class, inversedBy="coupon", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $order;
 
     public function __construct()
     {
@@ -96,18 +96,6 @@ class OrderCoupon
         return $this;
     }
 
-    public function getOrder(): ?Order
-    {
-        return $this->order;
-    }
-
-    public function setOrder(?Order $order): self
-    {
-        $this->order = $order;
-
-        return $this;
-    }
-
     /**
      * @return Collection|OrderCouponRule[]
      */
@@ -134,6 +122,18 @@ class OrderCoupon
                 $rule->setCoupon(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getOrder(): ?Order
+    {
+        return $this->order;
+    }
+
+    public function setOrder(Order $order): self
+    {
+        $this->order = $order;
 
         return $this;
     }
