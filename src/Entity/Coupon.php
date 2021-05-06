@@ -12,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Coupon
 {
+    const TYPE = [
+        'FIXED' => 'FIXED',
+        'PERCENT' => 'PERCENT',
+    ];
+    
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

@@ -12,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class OrderCoupon
 {
+    const TYPE = [
+        'PRICE_FIXED' => 'PRICE_FIXED',
+        'PRICE_PERCENT' => 'PRICE_PERCENT',
+    ];
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -25,14 +30,14 @@ class OrderCoupon
     private $code;
 
     /**
-     * @ORM\Column(type="float")
-     */
-    private $price;
-
-    /**
      * @ORM\Column(type="string", length=50)
      */
     private $type;
+
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $value;
 
     /**
      * @ORM\ManyToOne(targetEntity=Order::class, inversedBy="coupons")
@@ -67,18 +72,6 @@ class OrderCoupon
         return $this;
     }
 
-    public function getPrice(): ?float
-    {
-        return $this->price;
-    }
-
-    public function setPrice(float $price): self
-    {
-        $this->price = $price;
-
-        return $this;
-    }
-
     public function getType(): ?string
     {
         return $this->type;
@@ -87,6 +80,18 @@ class OrderCoupon
     public function setType(string $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getValue(): ?float
+    {
+        return $this->value;
+    }
+
+    public function setValue(?float $value): self
+    {
+        $this->value = $value;
 
         return $this;
     }

@@ -10,6 +10,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class CouponRule
 {
+    const TYPE = [
+        'PRICE_MIN' => 'PRICE_MIN',
+        'PRICE_MAX' => 'PRICE_MAX',
+    ];
+    
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

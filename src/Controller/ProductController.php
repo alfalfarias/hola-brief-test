@@ -25,7 +25,7 @@ class ProductController extends AbstractController
 
         foreach ($query as $key => $value) {
             $data[] = [
-                // 'id' => $product->getId(),
+                // 'id' => $value->getId(),
                 'code' => $value->getCode(),
                 'price' => $value->getPrice(),
             ];
@@ -39,10 +39,11 @@ class ProductController extends AbstractController
     public function create(Request $request): Response
     {
         $request_body = json_decode($request->getContent(), true);
+        $product_data = $request_body;
 
         $product = new Product();
-        $product->setCode($request_body['code']);
-        $product->setPrice($request_body['price']);
+        $product->setCode($product_data['code']);
+        $product->setPrice($product_data['price']);
 
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($product);
