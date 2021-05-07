@@ -42,7 +42,6 @@ class CouponController extends AbstractController
                 'value' => $coupon->getValue(),
                 'rules' => $rules_response,
             ];
-
         }
 
         return $this->json($response, 200);
@@ -57,12 +56,23 @@ class CouponController extends AbstractController
         $coupon_data = $request_body['coupon'];
         $rules_data = $request_body['rules'];
 
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $exists = !!$entityManager->getRepository(Coupon::class)->findOneBy([
+            'code' => $coupon_data['code'],
+        ]);
+        if ($exists) {
+            return $this->json(['code' => [
+                    'El código ya existe'
+                ],
+            ], 422);
+        }
+
         $coupon = new Coupon();
         $coupon->setCode($coupon_data['code']);
         $coupon->setType($coupon_data['type']);
         $coupon->setValue($coupon_data['value']);
 
-        $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($coupon);
         $entityManager->flush();
 

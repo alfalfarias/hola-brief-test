@@ -4,9 +4,12 @@ namespace App\Entity;
 
 use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
+ * @UniqueEntity("code")
  */
 class Product
 {
@@ -19,11 +22,14 @@ class Product
 
     /**
      * @ORM\Column(type="string", length=50, unique=true)
+     * @Assert\NotBlank(message="El código es requerido")
      */
     private $code;
 
     /**
      * @ORM\Column(type="float")
+     * @Assert\NotBlank(message="El precio es requerido")
+     * @Assert\Positive
      */
     private $price;
 

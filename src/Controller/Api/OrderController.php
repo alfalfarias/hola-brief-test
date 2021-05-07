@@ -18,6 +18,10 @@ use Symfony\Component\Routing\Annotation\Route;
 */
 class OrderController extends AbstractController
 {
+    const HTTP_ERROR = [
+        'COUPON_NOT_FOUND' => 'COUPON_NOT_FOUND',
+    ];
+
     /**
      * @Route("/orders", methods={"GET"}, name="order_index")
      */
@@ -91,6 +95,9 @@ class OrderController extends AbstractController
         $coupon = $entityManager->getRepository(Coupon::class)->findOneBy([
             'code' => $coupon_data['code'],
         ]);
+        if (!$coupon) {
+            return $this->json(OrderController::HTTP_ERROR['COUPON_NOT_FOUND'], 422);
+        }
 
         $product_codes_data = [];
         foreach ($products_data as $product_data) {

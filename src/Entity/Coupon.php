@@ -6,9 +6,12 @@ use App\Repository\CouponRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=CouponRepository::class)
+ * @UniqueEntity("code")
  */
 class Coupon
 {
@@ -26,6 +29,7 @@ class Coupon
 
     /**
      * @ORM\Column(type="string", length=50, unique=true)
+     * @Assert\NotBlank(message="El código es requerido")
      */
     private $code;
 
@@ -36,6 +40,8 @@ class Coupon
 
     /**
      * @ORM\Column(type="float", nullable=true)
+     * @Assert\NotBlank(message="El precio es requerido")
+     * @Assert\Positive
      */
     private $value;
 

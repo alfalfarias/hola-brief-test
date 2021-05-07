@@ -43,11 +43,23 @@ class ProductController extends AbstractController
         $request_body = json_decode($request->getContent(), true);
         $product_data = $request_body;
 
+        $entityManager = $this->getDoctrine()->getManager();
+
+        //Validate
+        $exists = !!$entityManager->getRepository(Product::class)->findOneBy([
+            'code' => $product_data['code'],
+        ]);
+        if ($exists) {
+            return $this->json(['code' => [
+                    'El código ya existe'
+                ],
+            ], 422);
+        }
+
         $product = new Product();
         $product->setCode($product_data['code']);
         $product->setPrice($product_data['price']);
 
-        $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($product);
         $entityManager->flush();
 
