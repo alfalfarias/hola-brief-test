@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Product;
+use App\Service\Product as ProductService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,7 +39,7 @@ class ProductController extends AbstractController
     /**
      * @Route("/products", methods={"POST"}, name="product_create")
      */
-    public function create(Request $request): Response
+    public function create(Request $request, ProductService $productService): Response
     {
         $request_body = json_decode($request->getContent(), true);
         $product_data = $request_body;
@@ -60,8 +61,7 @@ class ProductController extends AbstractController
         $product->setCode($product_data['code']);
         $product->setPrice($product_data['price']);
 
-        $entityManager->persist($product);
-        $entityManager->flush();
+        $productService->create($product);
 
         return $this->json([
             'id' => $product->getId(),

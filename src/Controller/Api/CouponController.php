@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\Coupon;
 use App\Entity\CouponRule as Rule;
+use App\Service\Coupon as CouponService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,7 +51,7 @@ class CouponController extends AbstractController
     /**
      * @Route("/coupons", methods={"POST"}, name="coupon_create")
      */
-    public function create(Request $request): Response
+    public function create(Request $request, CouponService $couponService): Response
     {
         $request_body = json_decode($request->getContent(), true);
         $coupon_data = $request_body['coupon'];
@@ -73,21 +74,15 @@ class CouponController extends AbstractController
         $coupon->setType($coupon_data['type']);
         $coupon->setValue($coupon_data['value']);
 
-        $entityManager->persist($coupon);
-        $entityManager->flush();
-
+        $rules = [];
         foreach ($rules_data as $rule_data) {
             $rule = new Rule();
-            $rule->setCoupon($coupon);
             $rule->setType($rule_data['type']);
             $rule->setValue($rule_data['value']);
-
-            $coupon->addRule($rule);
-
-            $entityManager->persist($rule);
-            $entityManager->flush();
+            $rules[] = $rule; 
         }
 
+        $couponService->create($coupon, $rules);
 
         $rules_response = [];
         foreach ($coupon->getRules() as $rule) {
