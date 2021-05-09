@@ -10,6 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
 * @Route("/api/order")
@@ -23,7 +25,7 @@ class OrderController extends AbstractController
     /**
      * @Route("/orders", methods={"GET"}, name="order_index")
      */
-    public function index(): Response
+    public function index(SerializerInterface $serializer): Response
     {
         $entityManager = $this->getDoctrine()->getManager();
         $orders = $entityManager->getRepository(Order::class)->findBy([],[
@@ -31,59 +33,40 @@ class OrderController extends AbstractController
         ]);
 
         $response = [];
-
         foreach ($orders as $order) {
-            $order_response = [
-                'id' => $order->getid(),
-                'price' => $order->getPrice(),
-                'discount' => $order->getDiscount(),
-                'total' => $order->getTotal(),
-                'products' => [],
-                'coupon' => null,
-            ];
-
-            $products = $order->getProducts();
-            foreach ($products as $product) {
-                $product_response =  [
-                    'code' => $product->getCode(),
-                    'price' => $product->getPrice(),
-                ];
-                $order_response['products'][] = $product_response;
-            }
-
-            $coupon = $order->getCoupon();
-            if ($coupon) {
-                $coupon_response =  [
-                    'id' => $coupon->getId(),
-                    'code' => $coupon->getCode(),
-                    'type' => $coupon->getType(),
-                    'value' => $coupon->getValue(),
-                    'rules' => [],
-                ];
-
-                $rules = $coupon->getRules();
-                foreach ($rules as $rule) {
-                    $rule_response = [
-                        'id' => $rule->getId(),
-                        'type' => $rule->getType(),
-                        'value' => $rule->getValue(),
-                    ];
-                    $coupon_response['rules'][] = $rule_response;
-                }
-
-                $order_response['coupon'] = $coupon_response;
-            }
+            $order_response = $serializer->normalize($order, null, [
+                AbstractNormalizer::ATTRIBUTES => [
+                    'id', 
+                    'price', 
+                    'discount',
+                    'total',
+                    'products' => [
+                        'code',
+                        'price',
+                    ],
+                    'coupon' => [
+                        'id',
+                        'code',
+                        'type',
+                        'value',
+                        'rules' => [
+                            'id',
+                            'type',
+                            'value',
+                        ],
+                    ],
+                ]
+            ]);
 
             $response[] = $order_response;
         }
-
         return $this->json($response, 200);
     }
 
     /**
      * @Route("/orders", methods={"POST"}, name="order_create")
      */
-    public function create(Request $request, OrderService $orderService): Response
+    public function create(Request $request, SerializerInterface $serializer, OrderService $orderService): Response
     {
         $request_body = json_decode($request->getContent(), true);
         $coupon_data = $request_body['coupon'];
@@ -112,11 +95,13 @@ class OrderController extends AbstractController
 
         $order = $orderService->create($products, $coupon);
 
-        $response = [
-            'price' => $order->getPrice(),
-            'discount' => $order->getDiscount(),
-            'total' => $order->getTotal(),
-        ];
+        $response = $serializer->normalize($order, null, [
+            AbstractNormalizer::ATTRIBUTES => [
+                'price', 
+                'discount',
+                'total',
+            ]
+        ]);
         return $this->json($response, 201);
     }
 }

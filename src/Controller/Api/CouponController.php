@@ -9,6 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
 * @Route("/api/coupon")
@@ -18,7 +20,7 @@ class CouponController extends AbstractController
     /**
      * @Route("/coupons", methods={"GET"}, name="coupon_index")
      */
-    public function index(): Response
+    public function index(SerializerInterface $serializer): Response
     {
         $entityManager = $this->getDoctrine()->getManager();
         $coupons = $entityManager->getRepository(Coupon::class)->findBy([],[
@@ -26,32 +28,28 @@ class CouponController extends AbstractController
         ]);
 
         $response = [];
-
         foreach ($coupons as $coupon) {
-            $rules_response = [];
-            foreach ($coupon->getRules() as $rule) {
-                $rules_response[] = [
-                    'type' => $rule->getType(),
-                    'value' => $rule->getValue(),
-                ];
-            }
-
-            $response[] = [
-                'id' => $coupon->getId(),
-                'code' => $coupon->getCode(),
-                'type' => $coupon->getType(),
-                'value' => $coupon->getValue(),
-                'rules' => $rules_response,
-            ];
+            $coupon_response = $serializer->normalize($coupon, null, [
+                AbstractNormalizer::ATTRIBUTES => [
+                    'id', 
+                    'code', 
+                    'type',
+                    'value',
+                    'rules' => [
+                        'type',
+                        'value',
+                    ],
+                ]
+            ]);
+            $response[] = $coupon_response;
         }
-
         return $this->json($response, 200);
     }
 
     /**
      * @Route("/coupons", methods={"POST"}, name="coupon_create")
      */
-    public function create(Request $request, CouponService $couponService): Response
+    public function create(Request $request, SerializerInterface $serializer, CouponService $couponService): Response
     {
         $request_body = json_decode($request->getContent(), true);
         $coupon_data = $request_body['coupon'];
@@ -84,22 +82,18 @@ class CouponController extends AbstractController
 
         $couponService->create($coupon, $rules);
 
-        $rules_response = [];
-        foreach ($coupon->getRules() as $rule) {
-            $rules_response[] = [
-                'type' => $rule->getType(),
-                'value' => $rule->getValue(),
-            ];
-        }
-
-        $response = [
-            'id' => $coupon->getId(),
-            'code' => $coupon->getCode(),
-            'type' => $coupon->getType(),
-            'value' => $coupon->getValue(),
-            'rules' => $rules_response,
-        ];
-
+        $response = $serializer->normalize($coupon, null, [
+            AbstractNormalizer::ATTRIBUTES => [
+                'id', 
+                'code', 
+                'type',
+                'value',
+                'rules' => [
+                    'type',
+                    'value',
+                ],
+            ]
+        ]);
         return $this->json($response, 201);
     }
 }
