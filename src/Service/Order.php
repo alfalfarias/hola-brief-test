@@ -4,19 +4,22 @@ namespace App\Service;
 
 use App\Entity\Coupon as CouponEntity;
 use App\Entity\Order as OrderEntity;
-use App\Entity\OrderCoupon as OrderCouponEntity;
-use App\Entity\OrderCouponRule as OrderCouponRuleEntity;
-use App\Entity\OrderProduct as OrderProductEntity;
 use App\Entity\Product as ProductEntity;
+use App\Service\Order\Coupon as CouponService;
+use App\Service\Order\Product as ProductService;
 use Doctrine\ORM\EntityManagerInterface;
 
 class Order
 {
     private $entityManager;
+    private $productService;
+    private $couponService;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, ProductService $productService, CouponService $couponService)
     {
         $this->entityManager = $entityManager;
+        $this->productService = $productService;
+        $this->couponService = $couponService;
     }
 
     public function create(array $products, CouponEntity $coupon = null): OrderEntity
@@ -48,40 +51,11 @@ class Order
         $this->entityManager->flush();
 
         foreach ($products as $product) {
-            $order_product = new OrderProductEntity();
-            $order_product->setOrder($order);
-            $order_product->setCode($product->getCode());
-            $order_product->setPrice($product->getPrice());
-
-            $order->addProduct($order_product);
-
-            $this->entityManager->persist($order_product);
-            $this->entityManager->flush();
+            $this->productService->create($order, $product);
         }
 
         if ($coupon) {
-            $order_coupon = new OrderCouponEntity();
-            $order_coupon->setOrder($order);
-            $order_coupon->setCode($coupon->getCode());
-            $order_coupon->setType($coupon->getType());
-            $order_coupon->setValue($coupon->getValue());
-
-            $order->setCoupon($order_coupon);
-
-            $this->entityManager->persist($order_coupon);
-            $this->entityManager->flush();
-
-            foreach ($coupon->getRules() as $rule) {
-                $order_coupon_rule = new OrderCouponRuleEntity();
-                $order_coupon_rule->setCoupon($order_coupon);
-                $order_coupon_rule->setType($rule->getType());
-                $order_coupon_rule->setValue($rule->getValue());
-
-                $order_coupon->addRule($order_coupon_rule);
-
-                $this->entityManager->persist($order_coupon_rule);
-                $this->entityManager->flush();
-            }
+            $this->couponService->create($order, $coupon);
         }
 
         return $order;
