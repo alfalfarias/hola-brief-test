@@ -28,23 +28,28 @@ Apricación de prueba para evaluación de habilidades en Symfony.
 - [Guía de estándares para el desarrollo del API REST](https://elbauldelprogramador.com/buenas-practicas-para-el-diseno-de-una-api-restful-pragmatica/#22-c%C3%B3digos-de-estado-http).
 - [Cliente API | Postman Colección](https://www.getpostman.com/collections/68541573069e563a3a70).
 
-## Run project
+## Ejecutar proyecto
 
 1. Crear entorno de Desarrollo
 1.1. Crear archivo del entorno de desarrollo ".env.local"
-1.2. Agregar las credenciales de la DB de desarrollo al archivo ".env.local"
+1.2. Agregar las credenciales de la DB de pruebas al archivo ".env.local"
 
-2. Crear entorno de Pruebas
-2.1. Agregar las credenciales de la DB de pruebas al archivo ".env.test"
-
-3. Instalar dependencias
+2. Instalar dependencias
 composer install
 
-4. Ejecutar migración
+3. Ejecutar migración
 php bin/console doctrine:migrations:migrate
 
-5. Ejecutar Fixures (para las pruebas)
-php bin/console doctrine:fixtures:load --env=test
+## Ejecutar entorno de pruebas
 
-6. Ejecutar Tests
+1. Crear entorno de Pruebas
+Agregar las credenciales de la DB de pruebas al archivo ".env.test"
+
+2. Ejecutar migración (para la DB de pruebas)
+php bin/console doctrine:migrations:migrate --env=test
+
+3. Ejecutar Fixures (para la DB de pruebas)
+php bin/console doctrine:fixtures:load  --env=test
+
+4. Ejecutar Tests
 php ./vendor/bin/phpunit
