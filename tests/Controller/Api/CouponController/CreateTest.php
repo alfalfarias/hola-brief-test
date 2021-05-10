@@ -4,7 +4,7 @@ namespace App\Tests\Controller\Api\CouponController;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
 
-class CreateFixedTypeTest extends ApiTestCase
+class CreateTest extends ApiTestCase
 {
 	public function testCreateWithDuplicateCode(): void
 	{
