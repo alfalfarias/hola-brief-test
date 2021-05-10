@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\OrderCouponRuleRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidGenerator;
 
 /**
  * @ORM\Entity(repositoryClass=OrderCouponRuleRepository::class)
@@ -14,11 +15,14 @@ class OrderCouponRule
         'PRICE_MIN' => 'PRICE_MIN',
         'PRICE_MAX' => 'PRICE_MAX',
     ];
-    
+
     /**
+     * @var \Ramsey\Uuid\UuidInterface
+     *
      * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="uuid", unique=true)
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class=UuidGenerator::class)
      */
     private $id;
 
@@ -38,7 +42,7 @@ class OrderCouponRule
      */
     private $coupon;
 
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }
