@@ -30,30 +30,4 @@ class Coupon
 
         return $coupon;
     }
-
-    public function calculateDiscount(CouponEntity $coupon, float $price): float
-    {
-        $coupon_type = $coupon->getType();
-        if ($coupon_type === CouponEntity::TYPE['PRICE_FIXED']) {
-            $discount += $coupon->getValue();
-        }
-        if ($coupon_type === CouponEntity::TYPE['PRICE_PERCENT']) {
-            $discount += $coupon->getValue() * $price / 100;
-        }
-
-        $rules = $coupon->getRules();
-        foreach ($rules as $rule) {
-            $value = $rule->getValue();
-            if ($rule->getType() === RuleEntity::TYPE['PRICE_MIN']) {
-                if ($price < $value) {
-                    $discount = 0;
-                }
-            }
-            if ($rule->getType() === RuleEntity::TYPE['PRICE_MAX']) {
-                if ($price > $value) {
-                    $discount = 0;
-                }
-            }
-        }
-    }
 }
