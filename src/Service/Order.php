@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Coupon as CouponEntity;
+use App\Entity\CouponRule as RuleEntity;
 use App\Entity\Order as OrderEntity;
 use App\Entity\Product as ProductEntity;
 use App\Service\Order\Coupon as CouponService;
@@ -31,13 +32,7 @@ class Order
 
         $discount = 0;
         if ($coupon) {
-            $coupon_type = $coupon->getType();
-            if ($coupon_type === CouponEntity::TYPE['PRICE_FIXED']) {
-                $discount += $coupon->getValue();
-            }
-            if ($coupon_type === CouponEntity::TYPE['PRICE_PERCENT']) {
-                $discount += $coupon->getValue() * $price / 100;
-            }
+            $discount = $this->calculateDiscount($coupon, $price);
         }
 
         $total = $price - $discount;
@@ -59,5 +54,35 @@ class Order
         }
 
         return $order;
+    }
+
+    public function calculateDiscount(CouponEntity $coupon, float $price): float
+    {
+        $discount = 0;
+
+        $coupon_type = $coupon->getType();
+        if ($coupon_type === CouponEntity::TYPE['PRICE_FIXED']) {
+            $discount += $coupon->getValue();
+        }
+        if ($coupon_type === CouponEntity::TYPE['PRICE_PERCENT']) {
+            $discount += $coupon->getValue() * $price / 100;
+        }
+
+        $rules = $coupon->getRules();
+        foreach ($rules as $rule) {
+            $value = $rule->getValue();
+            if ($rule->getType() === RuleEntity::TYPE['PRICE_MIN']) {
+                if ($price < $value) {
+                    $discount = 0;
+                }
+            }
+            if ($rule->getType() === RuleEntity::TYPE['PRICE_MAX']) {
+                if ($price > $value) {
+                    $discount = 0;
+                }
+            }
+        }
+        
+        return $discount;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Coupon;
+use App\Entity\CouponRule;
 use App\Entity\Order;
 use App\Entity\Product;
 use App\Service\Order as OrderService;
@@ -69,10 +70,19 @@ class OrderController extends AbstractController
     public function create(Request $request, SerializerInterface $serializer, OrderService $orderService): Response
     {
         $request_body = json_decode($request->getContent(), true);
-        $coupon_data = $request_body['coupon'];
         $products_data = $request_body['products'];
+        $coupon_data = $request_body['coupon'];
 
         $entityManager = $this->getDoctrine()->getManager();
+
+        $product_codes_data = [];
+        foreach ($products_data as $product_data) {
+            $product_codes_data[] = $product_data['code'];
+        }
+
+        $products = $entityManager->getRepository(Product::class)->findBy([
+            'code' => $product_codes_data,
+        ]);
 
         $coupon = null;
         if ($coupon_data) {
@@ -83,15 +93,6 @@ class OrderController extends AbstractController
                 return $this->json(OrderController::HTTP_ERROR['COUPON_NOT_FOUND'], 422);
             }
         }
-
-        $product_codes_data = [];
-        foreach ($products_data as $product_data) {
-            $product_codes_data[] = $product_data['code'];
-        }
-
-        $products = $entityManager->getRepository(Product::class)->findBy([
-            'code' => $product_codes_data,
-        ]);
 
         $order = $orderService->create($products, $coupon);
 

@@ -53,7 +53,8 @@ class ProductController extends AbstractController
             'code' => $product_data['code'],
         ]);
         if ($exists) {
-            return $this->json(['code' => [
+            return $this->json([
+                'code' => [
                     'El código ya existe'
                 ],
             ], 422);
